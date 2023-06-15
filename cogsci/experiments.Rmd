@@ -45,8 +45,6 @@ rownames(gpt_embed_dsm) <- gpt_embed$X
 rownames(gpt_embed_mds) <- gpt_embed$X
 gpt_embed_mds <- gpt_embed_mds[order(rownames(gpt_embed_mds)),]
 
-
-
 #word2vec_data
 w2v = w2v[order(w2v$X), ]
 w2v_dsm =1-lsa::cosine(t(data.matrix(w2v[,2:ncol(w2v)])))
@@ -111,7 +109,7 @@ gpt_triplet_mds <- gpt_triplet_mds[, 3:5]
 gpt_triplet_cosine_dist = 1-  lsa::cosine(t(data.matrix(gpt_triplet_mds)))
 rownames(gpt_triplet_cosine_dist) <- gpt_triplet_mds$concept
 
-# gpt pairwise
+# gpt pairwise gpt3.5
 gpt_pairwise <- read.csv('data/pairwise/pairwise_response_1_7_davinci_003_matrix.csv')
 gpt_pairwise_cosine_dist = 1-lsa::cosine(t(data.matrix(gpt_pairwise[,2:ncol(gpt_pairwise)])))
 gpt_pairwise_mds <- cmdscale(gpt_pairwise_cosine_dist, k = 3)
@@ -119,11 +117,30 @@ rownames(gpt_pairwise_cosine_dist) <- gpt_pairwise$X
 colnames(gpt_pairwise_cosine_dist) <- gpt_pairwise$X
 rownames(gpt_pairwise_mds) = rownames(gpt_pairwise_cosine_dist)
 gpt_pairwise_mds <- gpt_pairwise_mds[order(rownames(gpt_pairwise_mds)),]
+
+# gpt pairwise gpt3
+gpt3_pairwise <- read.csv('data/pairwise/pairwise_response_davinci-002_matrix.csv')
+gpt3_pairwise_cosine_dist = 1-lsa::cosine(t(data.matrix(gpt3_pairwise[,2:ncol(gpt3_pairwise)])))
+gpt3_pairwise_mds <- cmdscale(gpt3_pairwise_cosine_dist, k = 3)
+rownames(gpt3_pairwise_cosine_dist) <- gpt3_pairwise$X
+colnames(gpt3_pairwise_cosine_dist) <- gpt3_pairwise$X
+rownames(gpt3_pairwise_mds) = rownames(gpt3_pairwise_cosine_dist)
+gpt3_pairwise_mds <- gpt3_pairwise_mds[order(rownames(gpt3_pairwise_mds)),]
 ```
 
 ```{r}
+gpt_triplet_mds
+```
+
+```{r}
+gpt_triplet_mds = read.csv('data/triplets/summer_data/gpt_reptile_tool_embedding_df_temp0_cogsci2023.csv')
+gpt_triplet_mds
+```
+
+
+```{r}
 # pairwise protest all elements
-matrices = list(leuven_mds, w2v_mds, clip_mds, unverified_gpt_mds_summer_no_mc, verified_gpt_mds_summer_no_mc, human_triplet_mds, gpt_triplet_mds, gpt_embed_mds, flan_xl_mds, flan_xxl_mds, gpt_pairwise_mds)
+matrices = list(leuven_mds, w2v_mds, clip_mds, unverified_gpt_mds_summer_no_mc, verified_gpt_mds_summer_no_mc, human_triplet_mds, gpt_triplet_mds, gpt_embed_mds, flan_xl_mds, flan_xxl_mds, gpt_pairwise_mds, gpt3_pairwise_mds)
 ## Create an empty list to store the results
 results = list()
 ## Iterate through all combinations of the matrices
@@ -137,7 +154,7 @@ for (i in 1:(length(matrices))) {
 
 ## make the results into a table
 ## Create a data frame with all possible combinations of matrix names
-matrix_names = list("leuven", "w2v", "clip", "unverified_gpt_summer_no_mc", "verified_gpt_summer_no_mc", "human_triplet", "gpt_triplet", "gpt_embed_mds", "flan_xl_mds", "flan_xxl_mds", "gpt_pairwise_mds")
+matrix_names = list("leuven", "w2v", "clip", "unverified_gpt_summer_no_mc", "verified_gpt_summer_no_mc", "human_triplet", "gpt_triplet", "gpt_embed_mds", "flan_xl_mds", "flan_xxl_mds", "gpt_pairwise_mds", "gpt3_pairwise_mds")
 matrix_combinations = expand.grid(matrix_names, matrix_names)
 
 ## Assign column names to the data frame
@@ -161,6 +178,11 @@ df
 ```{r}
 write.table(data.frame(df), "results/correlation_table.csv", sep=",")
 ```
+
+#####EVERYTHING ABOVE IS REQUIRED FOR HEATMAP#####
+
+
+
 
 ```{r}
 test <- round(as.matrix(protest_results[,2:ncol(protest_results)]),2)
